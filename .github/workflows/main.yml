@@ -36,7 +36,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t my-app:latest .
+          docker build -t flask-app:latest .
 
       - name: Install Trivy
         run: |
@@ -45,7 +45,7 @@ jobs:
   
       - name: Scan for vulnerabilities
         run: |
-          $HOME/.trivy/trivy image --severity HIGH,CRITICAL my-app:latest
+          $HOME/.trivy/trivy image --severity HIGH,CRITICAL flask-app:latest
 
   sonar_scan:
     runs-on: ubuntu-latest
@@ -60,3 +60,19 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  docker_publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Build Docker Image
+        run: |
+            docker build -t flask-app:latest .
+      - name: Login to Docker Hub
+        run: |
+            echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Push Docker Image
+        run: |
+            docker tag flask-app:latest ${{ secrets.DOCKER_USERNAME }}/flask-app:latest
+            docker push ${{ secrets.DOCKER_USERNAME }}/flask-app:latest
