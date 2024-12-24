@@ -41,7 +41,8 @@ jobs:
       - name: Install Trivy
         run: |
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
+          export PATH=$PATH:$HOME/.local/bin
 
       - name: Scan for vulnerabilities
         run: |
-          ./trivy image --severity HIGH,CRITICAL my-app:latest
+            $HOME/.local/bin/trivy image --severity HIGH,CRITICAL my-app:latest
